@@ -24,15 +24,28 @@ pipeline {
           }
         }
         stage ("Build") {
+           
             steps {
-             sh "mvn -s settings.xml -DskipTests install"
+                 sh 'mvn -s settings.xml -U -DskipTests install'
+            }
+
+            post {
+                success {
+                    echo "Yes You did it!!!",
+                    // archiveArtifacts artifacts: '**/*.war', fingerprint: true
+                }
+            }
+
+        }
+
+        stage ("Test") {
+            step {
+                sh "mvn test"
             }
         }
-        post {
-            success {
-                echo "JhingaLala"
-                archiveArtifacts artifacts: '**/*.war'
-            }
+
+        stage ("CheckStyle Analysis") {
+            sh "mvn checkstyle:checkstyle"
         }
     }
 }
