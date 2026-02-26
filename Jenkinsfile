@@ -19,10 +19,14 @@ pipeline {
 
     stages {
         stage("Greeintgs") {
-            echo "Hello World"
+          steps {
+            echo "Welcome Back!!"
+          }
         }
         stage {
-            sh "mvn -s settings.xml -DskipTests install"
+            steps {
+             sh "mvn -s settings.xml -DskipTests install"
+            }
         }
     }
 }
