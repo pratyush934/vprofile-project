@@ -28,5 +28,11 @@ pipeline {
              sh "mvn -s settings.xml -DskipTests install"
             }
         }
+        post {
+            success {
+                echo "JhingaLala"
+                archiveArtifacts artifacts: '**/*.war'
+            }
+        }
     }
 }
