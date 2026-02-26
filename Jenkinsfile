@@ -16,6 +16,7 @@ pipeline {
         NEXUSIP         = '52.66.220.212'
         NEXUSPORT       = '8081'
         NEXUS_LOGIN     = 'nexus-cred'
+        SCANNER_HOME=tool 'sonar-scanner'
     }
 
     stages {
@@ -43,6 +44,33 @@ pipeline {
             steps {
                 sh 'mvn checkstyle:checkstyle'
             }
+        }
+        stage("SonarQube Analysis") {
+            environment {
+                SCANNER_HOME = tool 'sonar-scanner'
+            }
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=vprofile \
+                        -Dsonar.projectKey=vprofile \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.junit.reportsPath=target/surefire-reports \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                        -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+                    '''
+                }
+            }
+        }
+
+        stage("Quality gate"){
+           steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                }
+            } 
         }
     }
 }
